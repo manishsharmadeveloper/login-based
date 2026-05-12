@@ -1,0 +1,9 @@
+UPDATE users 
+SET last_login = NOW() 
+WHERE last_login IS NULL;
+
+
+
+ALTER TABLE users 
+ADD last_login DATETIME NULL,
+ADD last_login_days INT DEFAULT 0;
