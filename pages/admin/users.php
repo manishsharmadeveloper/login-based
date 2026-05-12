@@ -60,10 +60,10 @@ if (isset($_GET['delete'])) {
 }
 
 /* =========================
-   RESET PASSWORD (FIXED)
+   RESET PASSWORD (FINAL FIX)
 ========================= */
-$showPassword = "";
-$openModalAfterPost = false;
+$showPasswords = [];
+$openModalUser = null;
 
 if (isset($_POST['reset_password'])) {
 
@@ -85,18 +85,23 @@ if (isset($_POST['reset_password'])) {
     $stmt->bind_param("si", $hash, $userId);
     $stmt->execute();
 
-    $_SESSION['temp_password'] = $generated;
-    $_SESSION['open_modal'] = true;
+    // store per user safely
+    $_SESSION['temp_passwords'][$userId] = $generated;
+    $_SESSION['open_modal_user'] = $userId;
 
     header("Location: users.php");
     exit();
 }
 
-$showPassword = $_SESSION['temp_password'] ?? "";
-$openModalAfterPost = $_SESSION['open_modal'] ?? false;
+/* read session */
+$showPasswords = $_SESSION['temp_passwords'] ?? [];
+$openModalUser = $_SESSION['open_modal_user'] ?? null;
 
-unset($_SESSION['temp_password']);
-unset($_SESSION['open_modal']);
+/* SAFE CLEANUP (FIXED LOGIC) */
+if (!isset($_POST['reset_password'])) {
+    unset($_SESSION['temp_passwords']);
+    unset($_SESSION['open_modal_user']);
+}
 
 /* =========================
    FETCH USERS
@@ -208,11 +213,11 @@ background:rgba(0,0,0,0.5);">
 
         <h3>Reset Password</h3>
 
-        <?php if ($showPassword != ""): ?>
+        <?php if ($openModalUser && isset($showPasswords[$openModalUser])): ?>
             <div style="background:#e8f7ff;padding:10px;margin-bottom:10px;">
                 <b>Generated Password:</b><br>
                 <span style="font-size:18px;color:#0077cc;">
-                    <?= $showPassword ?>
+                    <?= $showPasswords[$openModalUser] ?>
                 </span>
             </div>
         <?php endif; ?>
@@ -246,9 +251,9 @@ function closeModal() {
     document.getElementById("resetModal").style.display = "none";
 }
 
-/* auto open modal after generation */
-<?php if ($openModalAfterPost): ?>
+<?php if ($openModalUser): ?>
 window.onload = function() {
+    document.getElementById("user_id").value = <?= $openModalUser ?>;
     document.getElementById("resetModal").style.display = "block";
 };
 <?php endif; ?>
