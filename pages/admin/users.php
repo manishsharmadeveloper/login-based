@@ -227,12 +227,12 @@ background:rgba(0,0,0,0.5);">
             <input type="hidden" name="user_id" id="user_id">
 
             <button type="submit" name="reset_password"
-                style="padding:8px 12px;background:green;color:white;border:none;">
+                style="padding:8px 12px;background:green;color:white;border:none; cursor: pointer;">
                 Generate Password
             </button>
 
             <button type="button" onclick="closeModal()"
-                style="padding:8px 12px;background:red;color:white;border:none;">
+                style="padding:8px 12px;background:red;color:white;border:none; cursor: pointer;">
                 Close
             </button>
 

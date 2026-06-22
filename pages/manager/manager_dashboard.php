@@ -91,6 +91,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <hr>
 
+
+<!-- links -->
 <div>
     <a href="#">View Reports</a><br>
     <a href="#">Manage Users</a><br>
