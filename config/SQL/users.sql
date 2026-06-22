@@ -1,19 +1,12 @@
 CREATE TABLE users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(100) NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        role ENUM('admin','user','manager') NOT NULL
-);
-
-
-
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(100) UNIQUE NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ENUM('admin','manager','user') DEFAULT 'user' NOT NULL,
-    failed_attempts INT DEFAULT 0,
-    is_locked TINYINT(1) DEFAULT 0,
+    role ENUM('admin', 'manager', 'user') NOT NULL DEFAULT 'user',
+    failed_attempts INT UNSIGNED NOT NULL DEFAULT 0,
+    is_locked BOOLEAN NOT NULL DEFAULT FALSE,
     last_login DATETIME NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ON UPDATE CURRENT_TIMESTAMP
 );

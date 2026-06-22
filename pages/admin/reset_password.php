@@ -67,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Reset Password</title>
 
     <script>
-        // 🔥 Generate password instantly in UI (no refresh needed)
+        // Generate password instantly in UI (no refresh needed)
         function generateUI() {
             const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#%&!";
             let pass = "";

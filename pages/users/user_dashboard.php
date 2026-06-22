@@ -74,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <p style="color:green;"><?php echo $message; ?></p>
 <?php endif; ?>
 
-<!-- 🔐 CHANGE PASSWORD FORM -->
+<!-- CHANGE PASSWORD FORM -->
 <h3>Change Password</h3>
 
 <form method="POST">
