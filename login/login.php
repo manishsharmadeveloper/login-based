@@ -24,15 +24,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($user) {
 
-        // 🔒 Check if account is locked
+        // Check if account is locked
         if ($user['is_locked'] == 1) {
             $error = "Account is locked. Contact admin.";
         } else {
 
-            // ✅ Password verify
+            // Password verify
             if (password_verify($password, $user['password'])) {
 
-                // 🔥 UPDATE LOGIN TIME + RESET ATTEMPTS
+                //  UPDATE LOGIN TIME + RESET ATTEMPTS
                 $update = $conn->prepare("
                     UPDATE users 
                     SET last_login = NOW(), failed_attempts = 0 
@@ -47,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['username'] = $user['username'];
 
-                // 🔀 ROLE REDIRECT
+                //  ROLE REDIRECT
                 switch ($user['role']) {
 
                     case 'admin':
@@ -71,12 +71,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             } else {
 
-                // ❌ WRONG PASSWORD
+                // WRONG PASSWORD
                 $attempts = $user['failed_attempts'] + 1;
 
                 if ($attempts >= 3) {
 
-                    // 🔒 LOCK ACCOUNT
+                    // LOCK ACCOUNT
                     $stmt = $conn->prepare("
                         UPDATE users 
                         SET failed_attempts = ?, is_locked = 1 
