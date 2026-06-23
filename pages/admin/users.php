@@ -60,48 +60,63 @@ if (isset($_GET['delete'])) {
 }
 
 /* =========================
-   RESET PASSWORD (FINAL FIX)
+   RESET PASSWORD
 ========================= */
-$showPasswords = [];
+
+$generatedPassword = "";
 $openModalUser = null;
+
 
 if (isset($_POST['reset_password'])) {
 
-    $userId = $_POST['user_id'];
+    $userId = intval($_POST['user_id']);
 
-    function generatePassword($length = 10) {
+    function generatePassword($length = 10)
+    {
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#%&!';
         return substr(str_shuffle($chars), 0, $length);
     }
 
-    $generated = generatePassword();
-    $hash = password_hash($generated, PASSWORD_DEFAULT);
+
+    $generatedPassword = generatePassword();
+
+    $hash = password_hash($generatedPassword, PASSWORD_DEFAULT);
+
 
     $stmt = $conn->prepare("
         UPDATE users 
-        SET password = ?, failed_attempts = 0, is_locked = 0 
-        WHERE id = ?
+        SET password=?, failed_attempts=0, is_locked=0
+        WHERE id=?
     ");
+
     $stmt->bind_param("si", $hash, $userId);
     $stmt->execute();
 
-    // store per user safely
-    $_SESSION['temp_passwords'][$userId] = $generated;
-    $_SESSION['open_modal_user'] = $userId;
+
+    // Remove old password completely
+    $_SESSION['reset_password'] = $generatedPassword;
+    $_SESSION['reset_user'] = $userId;
+
 
     header("Location: users.php");
     exit();
 }
 
+
+// Load only current reset password
+
+if (isset($_SESSION['reset_password'])) {
+
+    $generatedPassword = $_SESSION['reset_password'];
+    $openModalUser = $_SESSION['reset_user'];
+}
+
+
 /* read session */
+
 $showPasswords = $_SESSION['temp_passwords'] ?? [];
 $openModalUser = $_SESSION['open_modal_user'] ?? null;
 
-/* SAFE CLEANUP (FIXED LOGIC) */
-if (!isset($_POST['reset_password'])) {
-    unset($_SESSION['temp_passwords']);
-    unset($_SESSION['open_modal_user']);
-}
 
 /* =========================
    FETCH USERS
@@ -134,74 +149,74 @@ $username = $_SESSION['username'] ?? 'Admin';
 
 <table border="1" cellpadding="10">
 
-<tr>
-    <th>ID</th>
-    <th>Username</th>
-    <th>Role</th>
-    <th>Status</th>
-    <th>Last Login</th>
-    <th>Inactive Days</th>
-    <th>Actions</th>
-</tr>
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Last Login</th>
+        <th>Inactive Days</th>
+        <th>Actions</th>
+    </tr>
 
-<?php while ($row = $result->fetch_assoc()) { ?>
+    <?php while ($row = $result->fetch_assoc()) { ?>
 
-<tr>
+        <tr>
 
-    <td><?= $row['id'] ?></td>
-    <td><?= htmlspecialchars($row['username']) ?></td>
-    <td><?= $row['role'] ?></td>
+            <td><?= $row['id'] ?></td>
+            <td><?= htmlspecialchars($row['username']) ?></td>
+            <td><?= $row['role'] ?></td>
 
-    <td>
-        <?php if ($row['is_locked']) { ?>
-            <span style="background:red;color:white;padding:3px 6px;border-radius:4px;">🔒 Locked</span>
-        <?php } else { ?>
-            <span style="background:green;color:white;padding:3px 6px;border-radius:4px;">Active</span>
-        <?php } ?>
-    </td>
+            <td>
+                <?php if ($row['is_locked']) { ?>
+                    <span style="background:red;color:white;padding:3px 6px;border-radius:4px;">🔒 Locked</span>
+                <?php } else { ?>
+                    <span style="background:green;color:white;padding:3px 6px;border-radius:4px;">Active</span>
+                <?php } ?>
+            </td>
 
-    <td>
-        <?= !empty($row['last_login']) ? $row['last_login'] : "Never logged in" ?>
-    </td>
+            <td>
+                <?= !empty($row['last_login']) ? $row['last_login'] : "Never logged in" ?>
+            </td>
 
-    <td>
-        <?php
-        if (!empty($row['last_login'])) {
-            $days = $row['days_since_login'];
+            <td>
+                <?php
+                if (!empty($row['last_login'])) {
+                    $days = $row['days_since_login'];
 
-            if ($days == 0) {
-                echo "<span style='color:green;'>Today</span>";
-            } elseif ($days <= 7) {
-                echo "<span style='color:orange;'>$days days</span>";
-            } else {
-                echo "<span style='color:red;'>$days days</span>";
-            }
-        } else {
-            echo "<span style='color:gray;'>Never</span>";
-        }
-        ?>
-    </td>
+                    if ($days == 0) {
+                        echo "<span style='color:green;'>Today</span>";
+                    } elseif ($days <= 7) {
+                        echo "<span style='color:orange;'>$days days</span>";
+                    } else {
+                        echo "<span style='color:red;'>$days days</span>";
+                    }
+                } else {
+                    echo "<span style='color:gray;'>Never</span>";
+                }
+                ?>
+            </td>
 
-    <td>
+            <td>
 
-        <a href="edit_user.php?id=<?= $row['id'] ?>">Edit</a> |
+                <a href="edit_user.php?id=<?= $row['id'] ?>">Edit</a> |
 
-        <?php if ($row['is_locked']) { ?>
-            <a href="users.php?unlock=<?= $row['id'] ?>" style="color:green;">Unlock</a> |
-        <?php } else { ?>
-            <a href="users.php?lock=<?= $row['id'] ?>" style="color:red;">Lock</a> |
-        <?php } ?>
+                <?php if ($row['is_locked']) { ?>
+                    <a href="users.php?unlock=<?= $row['id'] ?>" style="color:green;">Unlock</a> |
+                <?php } else { ?>
+                    <a href="users.php?lock=<?= $row['id'] ?>" style="color:red;">Lock</a> |
+                <?php } ?>
 
-        <a href="#" onclick="openModal(<?= $row['id'] ?>)">Reset Password</a> |
+                <a href="#" onclick="openModal(<?= $row['id'] ?>)">Reset Password</a> |
 
-        <a href="users.php?delete=<?= $row['id'] ?>"
-           onclick="return confirm('Are you sure?')">Delete</a>
+                <a href="users.php?delete=<?= $row['id'] ?>"
+                    onclick="return confirm('Are you sure?')">Delete</a>
 
-    </td>
+            </td>
 
-</tr>
+        </tr>
 
-<?php } ?>
+    <?php } ?>
 
 </table>
 
@@ -213,13 +228,17 @@ background:rgba(0,0,0,0.5);">
 
         <h3>Reset Password</h3>
 
-        <?php if ($openModalUser && isset($showPasswords[$openModalUser])): ?>
+        <?php if ($generatedPassword != ""): ?>
+
             <div style="background:#e8f7ff;padding:10px;margin-bottom:10px;">
                 <b>Generated Password:</b><br>
+
                 <span style="font-size:18px;color:#0077cc;">
-                    <?= $showPasswords[$openModalUser] ?>
+                    <?= htmlspecialchars($generatedPassword) ?>
                 </span>
+
             </div>
+
         <?php endif; ?>
 
         <form method="POST">
@@ -242,21 +261,30 @@ background:rgba(0,0,0,0.5);">
 </div>
 
 <script>
-function openModal(id) {
-    document.getElementById("user_id").value = id;
-    document.getElementById("resetModal").style.display = "block";
-}
+    function openModal(id) {
 
-function closeModal() {
-    document.getElementById("resetModal").style.display = "none";
-}
+        document.getElementById("user_id").value = id;
 
-<?php if ($openModalUser): ?>
-window.onload = function() {
-    document.getElementById("user_id").value = <?= $openModalUser ?>;
-    document.getElementById("resetModal").style.display = "block";
-};
-<?php endif; ?>
+        // Hide previous generated password
+        let passwordBox = document.querySelector(".generated-password");
+
+        if (passwordBox) {
+            passwordBox.style.display = "none";
+        }
+
+        document.getElementById("resetModal").style.display = "block";
+    }
+
+    function closeModal() {
+        document.getElementById("resetModal").style.display = "none";
+    }
+
+    <?php if ($openModalUser): ?>
+        window.onload = function() {
+            document.getElementById("user_id").value = <?= $openModalUser ?>;
+            document.getElementById("resetModal").style.display = "block";
+        };
+    <?php endif; ?>
 </script>
 
 <br>
