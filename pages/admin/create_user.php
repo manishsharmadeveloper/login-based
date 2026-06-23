@@ -54,10 +54,10 @@ $username = $_SESSION['username'] ?? 'Admin';
 <form method="POST">
 
     <label>Username:</label><br>
-    <input type="text" name="username" required><br><br>
+    <input type="text" name="username" placeholder="enter username" required><br><br>
 
     <label>Password:</label><br>
-    <input type="password" name="password" required><br><br>
+    <input type="password" name="password" placeholder="enter password" required><br><br>
 
     <label>Role:</label><br>
     <select name="role" required>
@@ -66,7 +66,7 @@ $username = $_SESSION['username'] ?? 'Admin';
         <option value="user">User</option>
     </select><br><br>
 
-    <button type="submit">Create User</button>
+    <button type="submit" style="cursor: pointer;">Create User</button>
 
 </form>
 

@@ -1,21 +1,25 @@
 <?php
 session_start();
 
-// Clear session variables
+// session clear
 $_SESSION = [];
 
-// Destroy session
-session_destroy();
-
-// Remove session cookie (extra security)
-if (ini_get("session.use_cookies")) {
+if (ini_get('session.use_cookies')) {
     $params = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 42000,
-        $params["path"], $params["domain"],
-        $params["secure"], $params["httponly"]
+
+    setcookie(
+        session_name(),
+        '',
+        time() - 42000,
+        $params['path'],
+        $params['domain'],
+        $params['secure'],
+        $params['httponly']
     );
 }
 
-header("Location: login.php");
-exit();
-?>
+// session destroy
+session_destroy();
+
+header('Location: login.php');
+exit;
