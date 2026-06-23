@@ -43,7 +43,7 @@ $admin_name = $_SESSION['username'] ?? 'Admin';
 
 <!-- HEADER -->
 <div style="display:flex; justify-content:space-between; padding:12px; background:#f2f2f2;">
-    
+
     <div>
         <h3 style="margin:0;">Admin Dashboard</h3>
     </div>
@@ -65,9 +65,9 @@ $admin_name = $_SESSION['username'] ?? 'Admin';
 
     Role:<br>
     <select name="role">
-        <option value="admin" <?= $user['role']=='admin'?'selected':'' ?>>Admin</option>
-        <option value="manager" <?= $user['role']=='manager'?'selected':'' ?>>Manager</option>
-        <option value="user" <?= $user['role']=='user'?'selected':'' ?>>User</option>
+        <option value="admin" <?= $user['role'] == 'admin' ? 'selected' : '' ?>>Admin</option>
+        <option value="manager" <?= $user['role'] == 'manager' ? 'selected' : '' ?>>Manager</option>
+        <option value="user" <?= $user['role'] == 'user' ? 'selected' : '' ?>>User</option>
     </select>
 
     <br><br>
